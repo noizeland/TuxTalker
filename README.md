@@ -1,15 +1,15 @@
-TuxTwitchTalker
+TuxTalker
 ===
 
 # Introduction
 
-TuxTwitchTalker (TTT) is a chat bot to connect to a Twitch channel and add functionality, respond to events, etc.  All of the functionality released so far are independent of the streaming software you use, as it only connects to Twitch (that may change in the future).
+TuxTalker (originally TuxTwitchTalker) is a chat bot to connect to a streamer's channel and add functionality, respond to events, etc.  All of the functionality released so far are independent of the streaming software you use, as it only connects to Twitch. This fork will aim for cross-platform functionality, expanding to other live streaming platforms in addition to Twitch.
 
 Some of the features (like playing media in response to events) are only effective if running on the streaming computer, but most could run on any computer, since most of the functionality is interacting with chat.
 
-TuxTwitchTalker is written on NodeJS, and should work on pretty much any operating system and the slowest of computers.  It uses the [tmi Twitch library](https://tmijs.com/) to interact with chat.  The software is designed so that its configuration drives all its functionality, so streamers should not have to change the code at all to customize the advertised features to their stream.
+This bot is written in NodeJS, and should work on pretty much any operating system and the slowest of computers.  It uses the [tmi Twitch library](https://tmijs.com/) to interact with chat.  The software is designed so that its configuration drives all its functionality, so streamers should not have to change the code at all to customize the advertised features to their stream.
 
-A part of my motivation to create TuxTwitchTalker was to help myself and others move away from tools that are offered by companies we would rather not be associated with.  It's no coincidence that the first release of this bot is shortly after Streamlabs (no, I'm not going to link to their website) made several marketing blunders exposing just how much of their IP they copied from other companies, many of which were not treated well.
+This bot was created to help small streamers move away from tools that are offered by companies we would rather not be associated with.  It's no coincidence that the first release of this bot is shortly after Streamlabs (no, I'm not going to link to their website) made several marketing blunders exposing just how much of their IP they copied from other companies, many of which were not treated well.
 
 Most users will not need to change (or even understand) the program itself.  All configuration is done via a [JSON file](https://en.wikipedia.org/wiki/JSON).  It has extensive comments in it to help you customize it for your needs.
 
@@ -19,7 +19,7 @@ ___
 # Features, already implemented
 
 ## **Greetings**
-When a viewer types in chat for the first time since TuxTwitchTalker was started, they can be greeted with text sent to chat/media file.
+When a viewer types in chat for the first time since TuxTalker was started, they can be greeted with text sent to chat/media file.
   * Individual regular viewers can have a special greeting/media play for them
   * Mods can have a separate greeting/media play for them
   * VIPs can have a separate greeting/media play for them
@@ -30,10 +30,10 @@ When a viewer types in chat for the first time since TuxTwitchTalker was started
   * Multiple greetings can be specified in an array, and one will be picked at random
 
 ## **Periodic messages**
-Messages sent to chat at a fixed rate.  This is often used for things like social links, channel rules, making up !commands, etc.
+Repeating messages sent to chat at a fixed interval (i.e every 30 minutes). This is often used for things like social links, channel rules, making up !commands, etc.
 
 ## **Triggered messages**
-Messages sent to chat when a specific word or phrase is mentioned.  This can be used for thanking subscribers/followers/raiders, responding to a phrase with a media file or message, etc.
+Messages sent to chat when a specific word or phrase is mentioned.  This can be used for !commands, thanking subscribers/followers/raiders, responding to a phrase with a media file or message, etc.
    *  The trigger can be a [regular expression](https://www.oreilly.com/content/an-introduction-to-regular-expressions/)
    * messages can have the sender's username inserted in the message.
    * Multiple messages can be specified in an array, and one will be picked at random
@@ -118,7 +118,7 @@ No styling is needed in the template because styling can be specified in the bro
 will make the text red and medium sized, transparent background, no margins.
 
 
-The below documentation assumes TuxTwitchTalker is running on the same computer as your streaming software,and using the default port of **8888**.  If that's not the case then replace **localhost** with the URL of the computer TuxTwitchTalker is running on.  The port can be changed in the configuration file.
+The below documentation assumes TuxTalker is running on the same computer as your streaming software,and using the default port of **8888**.  If that's not the case then replace **localhost** with the URL of the computer TuxTalker is running on.  The port can be changed in the configuration file.
 ### Browser sources
 
 #### **Playing media**
@@ -134,7 +134,7 @@ Timers can appear on your stream as a browser source using the URL **http://loca
 
 
 ## Feature flags
-Many features and commands can be enabled or disabled without changing the code.  See the **COMMANDS_FEATURE_FLAGS** section in the configuration file.  As documented above, the **!!enable [FEATURE]** and **!disable [FEATURE]** commands can be used to turn features on and off during the current TTT run without changing the configuration file.
+Many features and commands can be enabled or disabled without changing the code.  See the **COMMANDS_FEATURE_FLAGS** section in the configuration file.  As documented above, the **!!enable [FEATURE]** and **!disable [FEATURE]** commands can be used to turn features on and off during the current TuxTalker run without changing the configuration file.
 
 
 ___
@@ -150,17 +150,17 @@ ___
 
 * A way to alert with video in addition to media and chat messages
 * A way to replace Streamlabs Labels to update files with latest follower, latest sub, etc.
-* Multi-tenant redesign so that one instance of TuxTwitchTalker can respond to the chat for multiple streamers, each with their separate configuration.
+* Multi-tenant redesign so that one instance of TuxTalker can respond to the chat for multiple streamers, each with their separate configuration.
 
 My goal is to get most of these features implemented by mid-2022.
 
 ___
 # Licensing
 
-TuxTwitchTalker is released under the [Apache 2.0 licence ](https://www.apache.org/licenses/LICENSE-2.0).  A simplified explanation of this license [from Wikipedia](https://en.wikipedia.org/wiki/Apache_License) is:
+TuxTalker is released under the [Apache 2.0 licence ](https://www.apache.org/licenses/LICENSE-2.0).  A simplified explanation of this license [from Wikipedia](https://en.wikipedia.org/wiki/Apache_License) is:
 > The Apache License is a permissive free software license written by the Apache Software Foundation (ASF).[5] It allows users to use the software for any purpose, to distribute it, to modify it, and to distribute modified versions of the software under the terms of the license, without concern for royalties.
 
-In essence, anyone can use TuxTwitchTalker, but I don't want a company (like Streamlabs) to take it and sell it as a commercial product.  It will ALWAYS be free and open source.  However, I do appreciate attribution/mentions in your About panels or periodic messages in your chat.
+In essence, anyone can use TuxTalker, but I don't want a company (like Streamlabs) to take it and sell it as a commercial product.  It will ALWAYS be free and open source.  However, I do appreciate attribution/mentions in your About panels or periodic messages in your chat.
 
 
 ![](https://i.imgur.com/raTPBU7.png)
@@ -171,30 +171,30 @@ ___
 While not strictly necessary, it's a good idea to make a separate Twitch account for your bot, so you can control its access, and it's less confusing for your viewers when bot messages come from a separate user.
 
 1. Go to https://www.twitch.tv and set up a new separate account.  If you don't want to log out of your current account, open up an incognito window and set up the new account in that.
-2. [Register your bot with Twitch](https://dev.twitch.tv/docs/authentication#registration).  Make sure to record the client_id that it returns.  It will be needed for future releases of TuxTwitchTalker.
-3. The library I use for chat communications, [tmi.js](https://tmijs.com/), requires an oAuth token that you will need to put in your TuxTwitchTalker configuration file.  In a browser logged in as your bot, go to https://twitchapps.com/tmi/ and it will give you an oAuth token.  Make note of it.
+2. [Register your bot with Twitch](https://dev.twitch.tv/docs/authentication#registration).  Make sure to record the client_id that it returns.  It will be needed for future releases of TuxTalker.
+3. The library I use for chat communications, [tmi.js](https://tmijs.com/), requires an oAuth token that you will need to put in your TuxTalker configuration file.  In a browser logged in as your bot, go to https://twitchapps.com/tmi/ and it will give you an oAuth token.  Make note of it.
 4. Go into Twitch Roles Manager and give your bot the moderator and editor roles.
 
 ___
-# Installing TuxTwitchTalker
+# Installing TuxTalker
 
-To take full advantage of TuxTwitchTalker's features, it should be installed on your streaming computer.  You can install it on any computer, but some functionality, like playing media over stream, won't be sent to your broadcast.
+To take full advantage of TuxTalker's features, it should be installed on your streaming computer.  You can install it on any computer, but some functionality, like playing media over stream, won't be sent to your broadcast.
 
 
 1. [Install NodeJS](https://nodejs.org/en/download/) as per their directions for your platform.
 2. Clone my repository by running
 
-    > **git clone https://github.com/LinuxLovah/TuxTwitchTalker**
+    > **git clone https://github.com/noizeland/TuxTalker**
 
-	or [download](https://github.com/LinuxLovah/TuxTwitchTalker/archive/refs/heads/main.zip) and expand the contents into some directory.  If you clone the repository, it makes it much easier to keep it updated.  If you download the zip file, unzip it into an empty directory.
-3. Open up a command line shell in the directory you cloned/unzipped TuxTwitchTalker into
+	or [download](https://github.com/noizeland/TuxTalker/archive/refs/heads/main.zip) and expand the contents into some directory.  If you clone the repository, it makes it much easier to keep it updated.  If you download the zip file, unzip it into an empty directory.
+3. Open up a command line shell in the directory you cloned/unzipped TuxTalker into
 4. Run **npm install** in that shell to install all the NodeJS modules the project depends on.
-5. If you are running TuxTwitchTalker on your streaming computer and want the ability to play sounds on stream (a big part of the bot's functionality) you will need some sort of media player.  I find that the open source [VLC](https://www.videolan.org/) works very well for this purpose, is free and runs on almost anything.  The media player is configurable in the config file, but the sample config file already has the right parameters for VLC by default.
+5. If you are running TuxTalker on your streaming computer and want the ability to play sounds on stream (a big part of the bot's functionality) you will need some sort of media player.  I find that the open source [VLC](https://www.videolan.org/) works very well for this purpose, is free and runs on almost anything.  The media player is configurable in the config file, but the sample config file already has the right parameters for VLC by default.
 
 ___
-# Configuring TuxTwitchTalker
+# Configuring TuxTalker
 
-TuxTwitchTalker is configured using [a JSON file](https://en.wikipedia.org/wiki/JSON), which allows complex expressions and lists to flexibly customize it.  The default configuration file is **config.json**
+TuxTalker is configured using [a JSON file](https://en.wikipedia.org/wiki/JSON), which allows complex expressions and lists to flexibly customize it.  The default configuration file is **config.json**
 
 There is a sample configuration file called **sample_config.json**.  It's important to note that JSON file doesn't support comments, so the documentation is included as JSON format as lines starting with **"COMMENT"**.
 1. Copy **sample_config.json** to **config.json**
@@ -209,9 +209,9 @@ The most important settings to update before the bot will run are:
 - "CHANNELS"
 
 ___
-# Running TuxTwitchTalker
+# Running TuxTalker
 
-1. Open up a terminal/command window and change to the directory you set up TuxTwitchTalker in
+1. Open up a terminal/command window and change to the directory you set up TuxTalker in
 2. type
 > npm start
 
@@ -219,24 +219,24 @@ If you need to specify an alternate configuration file, type
 > npm start MY_CONFIGURATION_FILE.json
 
 ___
-# Updating TuxTwitchTalker
+# Updating TuxTalker
 
-Updating TuxTwitchTalker is pretty much the same process as installing it, except:
+Updating TuxTalker is pretty much the same process as installing it, except:
 
-* It's unlikely you will have modified local files that ships, but do make sure to back up your existing installation first, especially as TTT expands its use of the web browser source server, and associated template files.
-* Make sure to compare your configuration file to the sample configuration file to include any updates.  As of version 2.4.0 of TTT, the configuration file includes a schema version number that the software will check for, and warn you if yours is from an older schema. But not every configuration file change will drive a new schema version, which will happen with renamed fields, new required fields, etc.
+* It's unlikely you will have modified local files that ships, but do make sure to back up your existing installation first, especially as TuxTalker expands its use of the web browser source server, and associated template files.
+* Make sure to compare your configuration file to the sample configuration file to include any updates.  As of version 2.4.0 of TuxTalker, the configuration file includes a schema version number that the software will check for, and warn you if yours is from an older schema. But not every configuration file change will drive a new schema version, which will happen with renamed fields, new required fields, etc.
 
 ___
 # Support/Contact
 
-* [LinuxLovah@gmail.com](mailto:LinuxLovah@gmail.com)
-* https://twitter.com/LinuxLovahTTV
-* https://twitch.tv/LinuxLovah
-* I offer support [on my Discord server](https://discord.gg/dJeFM2GpZN) in the **#streaming-tech-talk** channel
+* [uninoize@gmail.com](mailto:uninoize@gmail.com)
+* [bluesky](https://bsky.app/profile/uninoize.com)
+* [twitch](https://www.twitch.tv/uninoize)
+* I offer support [on my Discord server](https://discord.gg/wTATs7TB6p) in the **#tux-talker** channel
 
 ___
 # Donations
 
-I will NEVER charge for this bot. It will always be free open source.  If you would like to donate, though, [you can paypal me](https://www.paypal.com/donate/?business=MYYKAGE7725C4&no_recurring=0&currency_code=USD).
+I will NEVER charge for this bot. It will always be free and open source. If you would like to donate though, please donate to [Gaza Kitchens](https://givebutter.com/L40inw/spinning-for-palestine/spinning4palestine).
 
-I also appreciate, though do not require, that you leave the periodic message in mentioning TuxTwitchTalker, even if it runs very infrequently.
+I also appreciate, though do not require, that you leave the periodic message in mentioning TuxTalker, even if it runs very infrequently.
