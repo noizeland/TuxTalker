@@ -1,10 +1,10 @@
 {
-  "name": "TuxTwitchTalker",
+  "name": "TuxTalker",
   "version": "2.4.0",
-  "description": "A Twitch bot which enables per-user greetings and interactions, chat commands, and more to come",
-  "main": "TuxTwitchTalker.js",
+  "description": "Chat bot to help small streamers automate their stream and reduce reliance on third parties",
+  "main": "TuxTalker.js",
   "scripts": {
-    "start": "node TuxTwitchTalker"
+    "start": "node TuxTalker"
   },
   "dependencies": {
     "express": "^4.17.2",
@@ -17,9 +17,9 @@
     "node": ">=10.0.0"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/twitch-chatbot"
+    "url": "https://github.com/noizeland/TuxTalker.git"
   },
-  "Author": "LinuxLovah LinuxLovah@gmail.com",
+  "Author": "noizeland 275883660+noizeland@users.noreply.github.com",
   "license": "MIT",
   "keywords": [
     "twitch",
@@ -27,7 +27,7 @@
     "irc"
   ],
   "bugs": {
-    "url": "https://github.com/LinuxLovah/TuxTwitchTalker/issues"
+    "url": "https://github.com/noizeland/TuxTalker/issues"
   },
-  "homepage": "https://github.com/LinuxLovah/TuxTwitchTalker"
+  "homepage": "https://github.com/noizeland/TuxTalker"
 }

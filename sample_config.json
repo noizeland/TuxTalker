@@ -58,16 +58,17 @@
 		"If the value is present and is 'true', then that command will be enabled, otherwise it will be disabled."
 	],
 	"COMMANDS_FEATURE_FLAGS": {
-		"counter":			"true",
-		"dice": 			"true",
+		"counter":				"true",
+		"dice": 				"true",
 		"forbiddenForModsVIPs": "true",
-		"greetings":		"true",
-		"imagelink":		"true",
-		"periodic":			"true",
-		"temperature":		"true",
-		"timer":			"true",
-		"triggered":		"true",
-		"webserver":		"false"
+		"greetings":			"false",
+		"imagelink":			"true",
+		"periodic":				"true",
+		"preset":				"false",
+		"temperature":			"true",
+		"timer":				"true",
+		"triggered":			"true",
+		"webserver":			"false"
 	},
 	"COMMENT_GREETINGS": [
 		"This is a list of regulars in your channel, and how you would like them",
@@ -156,6 +157,27 @@
 		"ttt": {
 			"INTERVAL": 118,
 			"CHAT":		"Small streamer without a lot of mods?  Need more automation in your stream so you can focus on content?  I created a free open source Twitch chat bot called TuxTwitchTalker, and I'll even help you set it up. Check it out at https://github.com/LinuxLovah/TuxTwitchTalker"
+		}
+	},
+	"COMMENT_PRESET_MESSAGES": [
+		"Preset messages will be posted in chat once at the time(s) value of {MARK}, in minutes",
+		"This is basically the same as periodic messages, but preset messages are non-repeating",
+		"Preset messages can be used for social media links, channel rules, notes on redeemables, etc.",
+		"MARK is the number of minutes that have elapsed before the message will be posted.  It can be a fraction (ie 30.3)",
+		"CHAT is the text to display in chat.",
+		"It's a good idea to ensure that the mark times do not overlap the intervals for any periodic messages you may have."
+	],
+	"PRESET_MESSAGES": {
+		"first_message": {
+			"MARK": 30,
+			"CHAT": [
+				"ya'll been vibing for a minute, thanks for staying locked in!",
+				"without ya'll there is no vibe, thanks for hanging out!"
+			]
+		},
+		"second_message": {
+			"MARK": 120,
+			"CHAT": "ya'll live asl tonight! tysm for vibing with me the last two hours!"
 		}
 	},
 	"COMMENT_TRIGGERED_MESSAGES": [

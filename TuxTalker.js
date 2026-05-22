@@ -30,9 +30,14 @@ var browserSourceAlertContent = "";
 var configFile = "";
 var env = {};
 var periodicMessageTimers = [];
+var presetMessageTimers = [];
 var seenUsers = [];
 var webServer;
 var socketServer;
+
+// Cooldowns for redeems;
+var spinCooldowns = {};           // monitors the last !spin use
+const SPIN_COOLDOWN_MS = 600000;  // cooldown period in milliseconds (10 minutes)
 
 //--------------------- Constants
 const cADMIN_USERS =		"ADMIN_USERS";
@@ -55,6 +60,7 @@ const cMEDIA = 				"MEDIA";
 const cMEDIAFILE = 			"MEDIAFILE";
 const cMEDIA_PLAYER_COMMAND = "MEDIA_PLAYER_COMMAND";
 const cPERIODIC_MESSAGES = 	"PERIODIC_MESSAGES";
+const cPRESET_MESSAGES = 	"PRESET_MESSAGES";
 const cPORT = 				"PORT";
 const cRANDOM_FILE_LINE_COMMANDS = "RANDOM_FILE_LINE_COMMANDS";
 const cSHOUTOUT = 			"SHOUTOUT";
@@ -78,13 +84,14 @@ const requiredConfigElements = [
 	'newEnv["IGNORE_USERS"]',
 	'newEnv["ADMIN_USERS"]',
 	'newEnv["CHANNELS"]',
-	'newEnv["CHANNEL_ID"]',
+	// 'newEnv["CHANNEL_ID"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["counter"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["dice"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["forbiddenForModsVIPs"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["greetings"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["periodic"]',
+	'newEnv["COMMANDS_FEATURE_FLAGS"]["preset"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["temperature"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["timer"]',
 	'newEnv["COMMANDS_FEATURE_FLAGS"]["triggered"]',
@@ -250,6 +257,24 @@ function runUserCommand(target, user, commandName, args) {
 		runTempConvertC(target, user, commandName);
 	} else if (commandName === "!times") {
 		runTimes(target, user, commandName);
+	} else if (commandName === "!spin") {
+		const now = Date.now();
+		const lastSpin = spinCooldowns[target] || 0;
+		const elapsed = now - lastSpin;
+
+		if (elapsed < SPIN_COOLDOWN_MS) {
+			const secondsLeft = Math.ceil((SPIN_COOLDOWN_MS - elapsed) / 1000);
+			const minutesLeft = Math.ceil((SPIN_COOLDOWN_MS - elapsed) / 60000);
+			// client.say(target, `⏳ !spin is on cooldown for ${secondsLeft} more second(s).`);
+			if (minutesLeft > 1) {
+				client.say(target, `⏳ !spin is on cooldown for ${minutesLeft} more minutes.`);
+			} else {
+				client.say(target, `⏳ !spin is on cooldown for ${secondsLeft} more seconds.`);
+			}
+		} else {
+			spinCooldowns[target] = now;
+			runSpin(target, user);
+		}
 	} else if (commandName.startsWith("!timer ")) {
 		runTimer(target, user, commandName, args);
 	} else if (commandName.startsWith("!+") && isFeatureEnabled(cCOUNTER)) {
@@ -379,6 +404,12 @@ function runRollDice(target, user, commandName) {
 	client.say(target, `You rolled a ${num}, ${user.username}`);
 }
 
+// spin logic
+function runSpin(target, user) {
+	// TODO: put your spin logic here
+	client.say(target, `"OH SNAP! 🌀 It's time for ${user.username} to SPIN 👏 THAT 👏 WHEEL! ${user.username}! ARE YOU READY?`);
+}
+
 function runTempConvertF(target, user, commandName) {
 	let tempF = Number(commandName.replace(/[^0-9-]/g,""));
 	let tempC = (tempF - 32) * (5/9);
@@ -437,7 +468,7 @@ function runTimer(target, user, commandName, args) {
 	}
 	setTimeout(() => {
 		if(isFeatureEnabled("webserver")) {
-			let payload = { "timerName": timerName, "timerValue": 00}
+			let payload = { "timerName": timerName, "timerValue": 0o0}
 			socketServer.emit(`timer_update`, payload );
 		}
 		if (cTIMER_ALERT in env) {
@@ -478,6 +509,35 @@ function runPeriodicMessages() {
 			}
 		}, env[cPERIODIC_MESSAGES][periodicMessage]["INTERVAL"] * 60000); // milliseconds = minutes * 60 * 1000
 		periodicMessageTimers.push(timer);
+	}
+}
+
+
+function runPresetMessages() {
+	// Unload any existing preset messages
+	for (const timer of presetMessageTimers) {
+		clearInterval(timer);
+	}
+	presetMessageTimers = [];
+
+
+	// Load preset messages
+	for (const presetMessage in env[cPRESET_MESSAGES]) {
+
+		console.log(`Loading preset message '${presetMessage}' to run at the ${env[cPRESET_MESSAGES][presetMessage]["MARK"]} mark`);
+
+		let timer = setInterval(() => {
+			if(isFeatureEnabled("preset")) {
+				console.log(`Posting preset message ${presetMessage} at the ${env[cPRESET_MESSAGES][presetMessage]["MARK"]} mark`);
+				if (cCHAT in env[cPRESET_MESSAGES][presetMessage]) {
+					sendChat(channel, "", env[cPRESET_MESSAGES][presetMessage][cCHAT]);
+				}
+				if (cMEDIA in env[cPRESET_MESSAGES][presetMessage]) {
+					playMedia(channel, "", env[cPRESET_MESSAGES][presetMessage][cMEDIA]);
+				}
+			}
+		}, env[cPRESET_MESSAGES][presetMessage]["MARK"] * 60000); // milliseconds = minutes * 60 * 1000
+		presetMessageTimers.push(timer);
 	}
 }
 
@@ -793,6 +853,7 @@ function loadConfigFile() {
 		}
 
 		runPeriodicMessages();
+		runPresetMessages();
 	} catch (err) {
 		console.log(`Error loading configuration file: ${err}`);
 
