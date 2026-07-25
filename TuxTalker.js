@@ -166,7 +166,6 @@ function onConnectedHandler(addr, port) {
 	console.log(`Connected to ${addr}:${port}`);
 }
 
-
 // Called every time a message comes in.  This is effectively the main chat processing loop.
 function onMessageHandler(target, user, msg) {
 	if (env[cIGNORE_USERS] && env[cIGNORE_USERS].includes(user.username.toLowerCase())) {
@@ -195,14 +194,12 @@ function onMessageHandler(target, user, msg) {
 	// Is it a message triggered by a regular expression in chat
 	runTriggeredMessage(target, user, commandName, args);
 
-	// Is this a command to return a random line from a a file defined in RANDOM_FILE_LINE_COMMANDS?
+	// Is this a command to return a random line from a file defined in RANDOM_FILE_LINE_COMMANDS?
 	runRandomFileLineCommands(target, user, commandName);
 
 	// Is it a GIPHY URL?
 	runImageLink(target, user, commandName, args);
 }
-
-
 
 function runAdminCommand(target, user, commandName, args) {
 if (user && user.username && env[cADMIN_USERS].includes(user.username.toLowerCase())) {
@@ -243,7 +240,6 @@ if (user && user.username && env[cADMIN_USERS].includes(user.username.toLowerCas
 		console.log(`Ignoring admin command '${commandName}' from '${user.username}'`);
 	}
 }
-
 
 function runUserCommand(target, user, commandName, args) {
 	if (commandName === '!audio') {
@@ -335,7 +331,6 @@ function runImageLink(target, user, message, args) {
 		}
 	}
 }
-
 
 function runForbiddenPhrases(target, user, message, args) {
 	// We dont want to take actions against mods and VIPs automatically
@@ -483,7 +478,6 @@ function runTimer(target, user, commandName, args) {
 
 }
 
-
 function runPeriodicMessages() {
 	// Unload any existing periodic messages
 	for (const timer of periodicMessageTimers) {
@@ -512,7 +506,6 @@ function runPeriodicMessages() {
 	}
 }
 
-
 function runPresetMessages() {
 	// Unload any existing preset messages
 	for (const timer of presetMessageTimers) {
@@ -540,7 +533,6 @@ function runPresetMessages() {
 		presetMessageTimers.push(timer);
 	}
 }
-
 
 // Web server incoming request handler
 function onWebRequest(request, response) {
@@ -795,6 +787,22 @@ function readRandomLine(fileName) {
 		let lineNumber = Math.floor(Math.random() * lines.length);
 		let text = lines[lineNumber];
 		console.log(`readRandomLine: Line number is ${lineNumber} of ${lines.length}, text is '${text}'`);
+		return text;
+
+	} catch (err) {
+		console.error(err);
+	}
+}
+
+// Return all lines from a file
+function readAllLines(fileName) {
+	try {
+		// read contents of the file
+		let data = fs.readFileSync(fileName, 'UTF-8');
+		// split the contents by new line
+		let lines = data.split(/\r?\n/);
+		let text = lines;
+		console.log(`readAllLines: Total lines is ${lines.length}`);
 		return text;
 
 	} catch (err) {
