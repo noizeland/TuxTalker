@@ -23,10 +23,10 @@ const url = require('url');
 const { Server } = require("socket.io");
 const { DateTime } = require("luxon");
 
-
 //--------------------- Global variables
 var allChattersFile = "data/all_chatters.txt";
 var browserSourceAlertContent = "";
+var commandsFile = "data/commands.txt"
 var configFile = "";
 var env = {};
 var periodicMessageTimers = [];
@@ -138,7 +138,7 @@ client.connect();
 process.on('uncaughtException', function (err) {
 	console.log("*** ERROR: UNHANDLED EXCEPTION ***");
 	console.log(err);
-	client.say(env[cCHANNELS], `${env[cBOT_NAME]} technical difficulties, please check logs!`);
+	client.say(env[cCHANNELS][0], `${env[cBOT_NAME]} technical difficulties, please check logs!`);
 }
 );
 
@@ -253,6 +253,8 @@ function runUserCommand(target, user, commandName, args) {
 		runTempConvertC(target, user, commandName);
 	} else if (commandName === "!times") {
 		runTimes(target, user, commandName);
+	} else if (commandName === "!commands") {
+		runCommands(target, user, commandName);
 	} else if (commandName === "!spin") {
 		const now = Date.now();
 		const lastSpin = spinCooldowns[target] || 0;
@@ -285,7 +287,7 @@ function runUserCommand(target, user, commandName, args) {
 }
 
 function runTriggeredMessage(target, user, message, args) {
-	if(isFeatureEnabled("triggered")) {
+	if (isFeatureEnabled("triggered")) {
 		for (const trigger in env[cTRIGGERED_MESSAGES]) {
 			// Triggered commands that start with !! are for admin users.
 			if (message.startsWith("!!") && user && user.username && !env[cADMIN_USERS].includes(user.username.toLowerCase())) {
@@ -430,6 +432,22 @@ function runTimes(target, user, commandName) {
 	}
 }
 
+function runCommands(target, user, commandName) {
+	try {
+		var fileName = commandsFile;
+		// read contents of the file
+		let data = fs.readFileSync(fileName, 'UTF-8');
+		// split the contents by new line
+		// let lines = data.split(/\r?\n/);
+		// console.log(lines);
+		let lines = data.split(/\r?\n/);
+		let message = JSON.stringify(lines);
+		client.say(target, message);
+	} catch (err) {
+		console.error(err);
+	}
+}
+
 // Some commands are to read a random line from a file.
 // These commands will be defined in the RANDOM_FILE_LINE_COMMANDS array in the config file
 function runRandomFileLineCommands(target, user, commandName) {
@@ -509,7 +527,7 @@ function runPeriodicMessages() {
 function runPresetMessages() {
 	// Unload any existing preset messages
 	for (const timer of presetMessageTimers) {
-		clearInterval(timer);
+		clearTimeout(timer);
 	}
 	presetMessageTimers = [];
 
@@ -519,7 +537,7 @@ function runPresetMessages() {
 
 		console.log(`Loading preset message '${presetMessage}' to run at the ${env[cPRESET_MESSAGES][presetMessage]["MARK"]} mark`);
 
-		let timer = setInterval(() => {
+		let timer = setTimeout(() => {
 			if(isFeatureEnabled("preset")) {
 				console.log(`Posting preset message ${presetMessage} at the ${env[cPRESET_MESSAGES][presetMessage]["MARK"]} mark`);
 				if (cCHAT in env[cPRESET_MESSAGES][presetMessage]) {
@@ -787,22 +805,6 @@ function readRandomLine(fileName) {
 		let lineNumber = Math.floor(Math.random() * lines.length);
 		let text = lines[lineNumber];
 		console.log(`readRandomLine: Line number is ${lineNumber} of ${lines.length}, text is '${text}'`);
-		return text;
-
-	} catch (err) {
-		console.error(err);
-	}
-}
-
-// Return all lines from a file
-function readAllLines(fileName) {
-	try {
-		// read contents of the file
-		let data = fs.readFileSync(fileName, 'UTF-8');
-		// split the contents by new line
-		let lines = data.split(/\r?\n/);
-		let text = lines;
-		console.log(`readAllLines: Total lines is ${lines.length}`);
 		return text;
 
 	} catch (err) {
