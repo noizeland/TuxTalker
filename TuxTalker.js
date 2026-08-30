@@ -634,44 +634,90 @@ function serveTimerBrowserSource(queryString, response) {
 }
 
 
-
 //--------------------- Helper Methods
 
-function greetUser(target, user, commandName) {
-	if ("GREETINGS" in env && isFeatureEnabled("greetings")) {
-		let greeting = "";
 
-		// Find and format greeting text
-		if (user && user.username.toLowerCase() in env[cGREETINGS] && cCHAT in env[cGREETINGS][user.username.toLowerCase()]) {
-			greeting = env[cGREETINGS][user.username.toLowerCase()][cCHAT];
-		} else if (user.mod && cDEFAULT_MOD in env[cGREETINGS] && cCHAT in env[cGREETINGS][cDEFAULT_MOD]) {
-			greeting = env[cGREETINGS][cDEFAULT_MOD][cCHAT];
-		} else if (user.vip && cDEFAULT_VIP in env[cGREETINGS] && cCHAT in env[cGREETINGS][cDEFAULT_VIP]) {
-			greeting = env[cGREETINGS][cDEFAULT_VIP][cCHAT];
-		} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in env[cGREETINGS] && cCHAT in env[cGREETINGS][cFIRST_TIME_CHATTER]) {
-			greeting = env[cGREETINGS][cFIRST_TIME_CHATTER][cCHAT];
-		} else if (cCHAT in env[cGREETINGS][cDEFAULT]) {
-			greeting = env[cGREETINGS][cDEFAULT][cCHAT];
-		}
+// function greetUser(target, user, commandName) {
+// 	if ("GREETINGS" in env && isFeatureEnabled("greetings")) {
+// 		let greeting = "";
+
+// 		// Find and format greeting text
+// 		if (user && user.username.toLowerCase() in env[cGREETINGS] && cCHAT in env[cGREETINGS][user.username.toLowerCase()]) {
+// 			greeting = env[cGREETINGS][user.username.toLowerCase()][cCHAT];
+// 		} else if (user.mod && cDEFAULT_MOD in env[cGREETINGS] && cCHAT in env[cGREETINGS][cDEFAULT_MOD]) {
+// 			greeting = env[cGREETINGS][cDEFAULT_MOD][cCHAT];
+// 		} else if (user.vip && cDEFAULT_VIP in env[cGREETINGS] && cCHAT in env[cGREETINGS][cDEFAULT_VIP]) {
+// 			greeting = env[cGREETINGS][cDEFAULT_VIP][cCHAT];
+// 		} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in env[cGREETINGS] && cCHAT in env[cGREETINGS][cFIRST_TIME_CHATTER]) {
+// 			greeting = env[cGREETINGS][cFIRST_TIME_CHATTER][cCHAT];
+// 		} else if (cCHAT in env[cGREETINGS][cDEFAULT]) {
+// 			greeting = env[cGREETINGS][cDEFAULT][cCHAT];
+// 		}
+// 		sendChat(target, user, greeting);
+
+// 		// Find and play media
+// 		greeting = "";
+// 		if (env[cGREETINGS][user.username.toLowerCase()] && env[cGREETINGS][user.username.toLowerCase()][cMEDIA]) {
+// 			greeting = env[cGREETINGS][user.username.toLowerCase()][cMEDIA];
+// 		} else if (user.mod && env[cGREETINGS][cDEFAULT_MOD][cMEDIA]) {
+// 			greeting = env[cGREETINGS][cDEFAULT_MOD][cMEDIA];
+// 		} else if (user.vip && env[cGREETINGS][cDEFAULT_VIP][cMEDIA]) {
+// 			greeting = env[cGREETINGS][cDEFAULT_VIP][cMEDIA];
+// 		} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in env[cGREETINGS] && cMEDIA in env[cGREETINGS][cFIRST_TIME_CHATTER]) {
+// 			greeting = env[cGREETINGS][cFIRST_TIME_CHATTER][cMEDIA];
+// 		} else if (env[cGREETINGS][cDEFAULT][cMEDIA]) {
+// 			greeting = env[cGREETINGS][cDEFAULT][cMEDIA];
+// 		}
+// 		playMedia(target, user, greeting);
+
+// 		// Shout out the user.  Does not do the shouting out itself but runs your shoutout command.
+// 		// We want to delay this a bit so it doesn't clash with any media playing
+// 		if (user.username.toLowerCase() in env[cGREETINGS] && cSHOUTOUT in env[cGREETINGS][user.username.toLowerCase()]) {
+// 			sendShoutOut(target, user, env[cGREETINGS][user.username.toLowerCase()][cSHOUTOUT]);
+// 		}
+// 	}
+// }
+
+
+// Walk the greeting priority order (personal > mod > vip > first-time chatter > default) for a
+// single field (CHAT or MEDIA) safely without assuming any of the keys exist.
+// allowDefault controls whether the final "default" fallback is considered at all. This allows
+// defaultGreeting to be disabled independently of the greetings feature.
+function getGreetingField(user, field, allowDefault) {
+	let greetings = env[cGREETINGS];
+	let personal = user && user.username ? greetings[user.username.toLowerCase()] : null;
+
+	if (personal && field in personal) {
+		return personal[field];
+	} else if (user.mod && cDEFAULT_MOD in greetings && field in greetings[cDEFAULT_MOD]) {
+		return greetings[cDEFAULT_MOD][field];
+	} else if (user.vip && cDEFAULT_VIP in greetings && field in greetings[cDEFAULT_VIP]) {
+		return greetings[cDEFAULT_VIP][field];
+	} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in greetings && field in greetings[cFIRST_TIME_CHATTER]) {
+		return greetings[cFIRST_TIME_CHATTER][field];
+	} else if (allowDefault && cDEFAULT in greetings && field in greetings[cDEFAULT]) {
+		return greetings[cDEFAULT][field];
+	}
+	return "";
+}
+
+
+function greetUser(targer, user, commandName) {
+	if ("GREETINGS" in env && isFeatureEnabled("greetings")) {
+		// defaultGreeting is disabled by default. Set it to "true" in
+		// COMMANDS_FEATURE_FLAGS to turn on the fallback greeting for unmatched viewers
+		// without affecting the settings for personal/mod/vip/first-time greetings.
+		// let allowDefault = !(cFEATURE_FLAGS in env && "defaultGreeting" in env[cCOMMANDS_FEATURE_FLAGS] && env[cCOMMANDS_FEATURE_FLAGS]["defaultGreeting"] === "false");
+		let allowDefault = cFEATURE_FLAGS in env && "defaultGreeting" in env[cCOMMANDS_FEATURE_FLAGS] && env[cCOMMANDS_FEATURE_FLAGS]["defaultGreeting"] === "true";
+
+		let greeting = getGreetingField(user, cCHAT, allowDefault);
 		sendChat(target, user, greeting);
 
-		// Find and play media
-		greeting = "";
-		if (env[cGREETINGS][user.username.toLowerCase()] && env[cGREETINGS][user.username.toLowerCase()][cMEDIA]) {
-			greeting = env[cGREETINGS][user.username.toLowerCase()][cMEDIA];
-		} else if (user.mod && env[cGREETINGS][cDEFAULT_MOD][cMEDIA]) {
-			greeting = env[cGREETINGS][cDEFAULT_MOD][cMEDIA];
-		} else if (user.vip && GREETINGS[cDEFAULT_VIP][cMEDIA]) {
-			greeting = env[cGREETINGS][cDEFAULT_VIP][cMEDIA];
-		} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in env[cGREETINGS] && cMEDIA in env[cGREETINGS][cFIRST_TIME_CHATTER]) {
-			greeting = env[cGREETINGS][cFIRST_TIME_CHATTER][cMEDIA];
-		} else if (env[cGREETINGS][cDEFAULT][cMEDIA]) {
-			greeting = env[cGREETINGS][cDEFAULT][cMEDIA];
-		}
-		playMedia(target, user, greeting);
+		let media = getGreetingField(user, cMEDIA, allowDefault);
+		playMedia(target, user, media);
 
-		// Shout out the user.  Does not do the shouting out itself but runs your shoutout command.
-		// We want to delay this a bit so it doesn't clash with any media playing
+		// Shout out the user (does not do the shout out itself but instead runs your shoutout command).
+		// We want to delay this a bit so it doesn't clash with any other media playing.
 		if (user.username.toLowerCase() in env[cGREETINGS] && cSHOUTOUT in env[cGREETINGS][user.username.toLowerCase()]) {
 			sendShoutOut(target, user, env[cGREETINGS][user.username.toLowerCase()][cSHOUTOUT]);
 		}

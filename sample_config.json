@@ -59,6 +59,7 @@
 	],
 	"COMMANDS_FEATURE_FLAGS": {
 		"counter":				"true",
+		"defaultGreeting": 		"true",
 		"dice": 				"true",
 		"forbiddenForModsVIPs": "true",
 		"greetings":			"false",
@@ -80,7 +81,10 @@
 		"Within the users or the defaults, the following entries are valid:",
 		"   CHAT: Write the message into the stream's chat",
 		"   MEDIA: Play a media file",
-		"   SHOUTOUT: Write a shoutout command into the stream's chat (NOTE it just issues the command, which is usually !so USERNAME, it can't do the shoutout itself)."
+		"   SHOUTOUT: Write a shoutout command into the stream's chat (NOTE it just issues the command, which is usually !so USERNAME, it can't do the shoutout itself).",
+		"If the 'greetings' feature flag is set to 'true', mods, VIPs, first-time chatters and those with a personally configured greeting will be greeted.",
+		"To turn on the default greeting (so that any and all chatters are greeted), set 'defaultGreeting' to 'true'. This setting defaults to 'false'.",
+		"Can also be toggled live in chat by admins with `!!enable defaultGreeting` and `!!disable defaultGreeting`."
 	],
 	"GREETINGS": {
 		"heather_gamer": {
