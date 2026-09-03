@@ -702,7 +702,7 @@ function getGreetingField(user, field, allowDefault) {
 }
 
 
-function greetUser(targer, user, commandName) {
+function greetUser(target, user, commandName) {
 	if ("GREETINGS" in env && isFeatureEnabled("greetings")) {
 		// defaultGreeting is disabled by default. Set it to "true" in
 		// COMMANDS_FEATURE_FLAGS to turn on the fallback greeting for unmatched viewers
