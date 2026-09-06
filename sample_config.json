@@ -24,8 +24,30 @@
 	"CONFIG_SCHEMA_VERSION": "2.0",
 	"COMMENT_BOT_NAME": "Username for the bot.  Must be a real Twitch username, may be your own username",
 	"BOT_NAME": "YourBotName",
-	"COMMENT_TMI_OAUTH": "Generate this value from https://twitchapps.com/tmi/ logged in as the above user",
+	"COMMENT_TMI_OAUTH": [
+		"Generate this value from https://twitchtokengenerator.com/ logged in to your bot's account (choose a 'Custom Scope' token with the following boxes checked:",
+		"chat:edit",
+		"chat:read",
+		"moderator:manage:banned_users"
+	],
 	"TMI_OAUTH": "oauth:%OAUTH_HASH%",
+	"COMMENT_CLIENT_ID": [
+		"Generate this value from https://twitchtokengenerator.com/ logged in to your bot's account (choose a 'Custom Scope' token with the following boxes checked:",
+		"chat:edit",
+		"chat:read",
+		"moderator:manage:banned_users"
+	],
+	"CLIENT_ID": "YourBotClientID",
+	"COMMENT_BROADCASTER_ID": [
+		"Your channel's numeric Twitch ID. Generate this value from https://streamweasels.com/tools/convert-twitch-username-to-user-id/ using your",
+		"streamer username."
+	],
+	"BROADCASTER_ID": "YourBroadcasterID",
+	"COMMENT_MODERATOR_ID": [
+		"Your bot's numeric Twitch ID. Generate this value from https://streamweasels.com/tools/convert-twitch-username-to-user-id/ using your bot's",
+		"username (ensure that your bot is assigned as a moderator in your channel)."
+	],
+	"MODERATOR_ID": "YourModeratorID",	
 	"COMMENT_MEDIA_PLAYER_COMMAND": [
 		"Command line program (with path) to play media files",
 		"The VLC command below works well for me on both Linux and Windows as long as vlc is in your path",

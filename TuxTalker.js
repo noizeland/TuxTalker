@@ -73,7 +73,12 @@ const cTIME_ZONES = 		"TIME_ZONES";
 const cTMI_OAUTH = 			"TMI_OAUTH";
 const cTRIGGERED_MESSAGES = "TRIGGERED_MESSAGES";
 const cUSERNAME = 			"USERNAME";
-const cWEB_SERVER = 		"WEB_SERVER"
+const cWEB_SERVER = 		"WEB_SERVER";
+const cCLIENT_ID = 			"CLIENT_ID";
+const cBROADCASTER_ID = 	"BROADCASTER_ID";
+const cMODERATOR_ID = 		"MODERATOR_ID"
+
+
 
 // This is the list of elements that must be present and non-empty in the config file
 // used by loadConfig to validate the config file
@@ -177,8 +182,32 @@ function onMessageHandler(target, user, msg) {
 	// Split arguments once here for all commands to use
 	let args = commandName.split(/(\s+)/)
 
-	// If we haven't seen this user before, greet them
-	runFirstSeen(target, user, commandName, args);
+
+	
+	// // If we haven't seen this user before, greet them
+	// runFirstSeen(target, user, commandName, args);
+
+	// // If the command is known, let's execute it
+	// // Admin commands begin with !!
+	// if (commandName.startsWith("!!")) {
+	// 	runAdminCommand(target, user, commandName, args);
+	// } else if (commandName.slice(0, 1) === "!") {
+	// 	runUserCommand(target, user, commandName, args);
+	// }
+
+	// // Does the post contain forbidden phrases?
+	// runForbiddenPhrases(target, user, commandName, args);
+
+
+
+	// Does the chat message contain forbidden phrases? Check this BEFORE greeting the
+	// user so we don't welcome/shoutout a user that we're about to time out or ban.
+	let isForbidden = runForbiddenPhrases(target, user, commandName, args);
+
+	// If we haven't seen this user before, greet them (unless they were just flagged)
+	if (!isForbidden) {
+		runFirstSeen(target, user, commandName, args);
+	}
 
 	// If the command is known, let's execute it
 	// Admin commands begin with !!
@@ -187,9 +216,6 @@ function onMessageHandler(target, user, msg) {
 	} else if (commandName.slice(0, 1) === "!") {
 		runUserCommand(target, user, commandName, args);
 	}
-
-	// Does the post contain forbidden phrases?
-	runForbiddenPhrases(target, user, commandName, args);
 
 	// Is it a message triggered by a regular expression in chat
 	runTriggeredMessage(target, user, commandName, args);
@@ -339,16 +365,19 @@ function runForbiddenPhrases(target, user, message, args) {
 	// However, if the feature flag forbiddenForModsVIPs is true then we will
 	// We never want to trigger for the broadcaster though
 	if ((!isFeatureEnabled("forbiddenForModsVIPs")) && (user.mod || user.vip)) {
-		return;
+		return false;
 	}
 	if ("badges" in user && user.badges && "broadcaster" in user.badges) {
-		return;
+		return false;
 	}
+
+	let foundForbidden = false;
 
 	for (const trigger in env[cFORBIDDEN_PHRASES]) {
 		const regex = new RegExp(trigger);
 		const matches = message.match(regex);
 		if (matches) {
+			foundForbidden = true;
 			console.log(`Found forbidden message matching ${regex}`);
 			if (cCHAT in env[cFORBIDDEN_PHRASES][trigger]) {
 				let reply = env[cFORBIDDEN_PHRASES][trigger][cCHAT];
@@ -364,8 +393,53 @@ function runForbiddenPhrases(target, user, message, args) {
 			}
 		}
 	}
+
+	return foundForbidden;
 }
 
+
+// Ban or timeout a user via Twitch's Helix moderation API.
+// This replaces the old approach of sending "/ban" or "/timeout" as chat
+// messages (Twitch disabled this in Feb 2023).
+// Pass durationSeconds for a timeout, or omit it for a ban
+async function banUser(user, reason, durationSeconds) {
+	const body = {
+		data: {
+			user_id: user["user-id"],
+			reason: reason || ""
+		}
+	};
+	if (durationSeconds) {
+		body.data.duration = durationSeconds;
+	}
+
+	try {
+		const response = await fetch(
+			`https://api.twitch.tv/helix/moderation/bans?broadcaster_id=${env[cBROADCASTER_ID]}&moderator_id=${env[cMODERATOR_ID]}`,
+			{
+				method: "POST",
+				headers: {
+					"Client-Id": env[cCLIENT_ID],
+					"Authorization": `Bearer ${env[cTMI_OAUTH].replace("oauth:", "")}`,
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(body)
+			}
+		);
+
+		if (!response.ok) {
+			const errorBody = await response.json().catch(() => ({}));
+			console.log(`Failed to ${durationSeconds ? "timeout" : "ban"} ${user.username}: ${response.status} ${errorBody.message || ""}`);
+			return false;
+		}
+
+		console.log(`${durationSeconds ? "Timed out" : "Banned"} ${user.username} via the Twitch API`);
+		return true;
+	} catch (err) {
+		console.log(`Error calling Twitch API for ${user.username}: ${err}`);
+		return false;
+	}
+}
 
 // Greet viewers the first time we see them in chat
 function runFirstSeen(target, user, commandName, args) {
@@ -635,48 +709,6 @@ function serveTimerBrowserSource(queryString, response) {
 
 
 //--------------------- Helper Methods
-
-
-// function greetUser(target, user, commandName) {
-// 	if ("GREETINGS" in env && isFeatureEnabled("greetings")) {
-// 		let greeting = "";
-
-// 		// Find and format greeting text
-// 		if (user && user.username.toLowerCase() in env[cGREETINGS] && cCHAT in env[cGREETINGS][user.username.toLowerCase()]) {
-// 			greeting = env[cGREETINGS][user.username.toLowerCase()][cCHAT];
-// 		} else if (user.mod && cDEFAULT_MOD in env[cGREETINGS] && cCHAT in env[cGREETINGS][cDEFAULT_MOD]) {
-// 			greeting = env[cGREETINGS][cDEFAULT_MOD][cCHAT];
-// 		} else if (user.vip && cDEFAULT_VIP in env[cGREETINGS] && cCHAT in env[cGREETINGS][cDEFAULT_VIP]) {
-// 			greeting = env[cGREETINGS][cDEFAULT_VIP][cCHAT];
-// 		} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in env[cGREETINGS] && cCHAT in env[cGREETINGS][cFIRST_TIME_CHATTER]) {
-// 			greeting = env[cGREETINGS][cFIRST_TIME_CHATTER][cCHAT];
-// 		} else if (cCHAT in env[cGREETINGS][cDEFAULT]) {
-// 			greeting = env[cGREETINGS][cDEFAULT][cCHAT];
-// 		}
-// 		sendChat(target, user, greeting);
-
-// 		// Find and play media
-// 		greeting = "";
-// 		if (env[cGREETINGS][user.username.toLowerCase()] && env[cGREETINGS][user.username.toLowerCase()][cMEDIA]) {
-// 			greeting = env[cGREETINGS][user.username.toLowerCase()][cMEDIA];
-// 		} else if (user.mod && env[cGREETINGS][cDEFAULT_MOD][cMEDIA]) {
-// 			greeting = env[cGREETINGS][cDEFAULT_MOD][cMEDIA];
-// 		} else if (user.vip && env[cGREETINGS][cDEFAULT_VIP][cMEDIA]) {
-// 			greeting = env[cGREETINGS][cDEFAULT_VIP][cMEDIA];
-// 		} else if (user.firstTimeChatter && cFIRST_TIME_CHATTER in env[cGREETINGS] && cMEDIA in env[cGREETINGS][cFIRST_TIME_CHATTER]) {
-// 			greeting = env[cGREETINGS][cFIRST_TIME_CHATTER][cMEDIA];
-// 		} else if (env[cGREETINGS][cDEFAULT][cMEDIA]) {
-// 			greeting = env[cGREETINGS][cDEFAULT][cMEDIA];
-// 		}
-// 		playMedia(target, user, greeting);
-
-// 		// Shout out the user.  Does not do the shouting out itself but runs your shoutout command.
-// 		// We want to delay this a bit so it doesn't clash with any media playing
-// 		if (user.username.toLowerCase() in env[cGREETINGS] && cSHOUTOUT in env[cGREETINGS][user.username.toLowerCase()]) {
-// 			sendShoutOut(target, user, env[cGREETINGS][user.username.toLowerCase()][cSHOUTOUT]);
-// 		}
-// 	}
-// }
 
 
 // Walk the greeting priority order (personal > mod > vip > first-time chatter > default) for a
