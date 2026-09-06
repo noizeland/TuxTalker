@@ -76,9 +76,7 @@ const cUSERNAME = 			"USERNAME";
 const cWEB_SERVER = 		"WEB_SERVER";
 const cCLIENT_ID = 			"CLIENT_ID";
 const cBROADCASTER_ID = 	"BROADCASTER_ID";
-const cMODERATOR_ID = 		"MODERATOR_ID"
-
-
+const cMODERATOR_ID = 		"MODERATOR_ID";
 
 // This is the list of elements that must be present and non-empty in the config file
 // used by loadConfig to validate the config file
@@ -147,8 +145,6 @@ process.on('uncaughtException', function (err) {
 }
 );
 
-
-
 //--------------------- Browser Source web server
 if (isFeatureEnabled("webserver")) {
 	if(! env[cWEB_SERVER]) {
@@ -181,24 +177,6 @@ function onMessageHandler(target, user, msg) {
 	let commandName = msg.replace(/[^\x20-\x7E]/g, '').trim();
 	// Split arguments once here for all commands to use
 	let args = commandName.split(/(\s+)/)
-
-
-	
-	// // If we haven't seen this user before, greet them
-	// runFirstSeen(target, user, commandName, args);
-
-	// // If the command is known, let's execute it
-	// // Admin commands begin with !!
-	// if (commandName.startsWith("!!")) {
-	// 	runAdminCommand(target, user, commandName, args);
-	// } else if (commandName.slice(0, 1) === "!") {
-	// 	runUserCommand(target, user, commandName, args);
-	// }
-
-	// // Does the post contain forbidden phrases?
-	// runForbiddenPhrases(target, user, commandName, args);
-
-
 
 	// Does the chat message contain forbidden phrases? Check this BEFORE greeting the
 	// user so we don't welcome/shoutout a user that we're about to time out or ban.
@@ -396,7 +374,6 @@ function runForbiddenPhrases(target, user, message, args) {
 
 	return foundForbidden;
 }
-
 
 // Ban or timeout a user via Twitch's Helix moderation API.
 // This replaces the old approach of sending "/ban" or "/timeout" as chat
