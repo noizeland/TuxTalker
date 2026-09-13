@@ -364,10 +364,10 @@ function runForbiddenPhrases(target, user, message, args) {
 			if (cTIMEOUT in env[cFORBIDDEN_PHRASES][trigger]) {
 				let timeoutSeconds = env[cFORBIDDEN_PHRASES][trigger][cTIMEOUT];
 				console.log(`Timing out user ${user.username}`);
-				sendChat(target, user, `/timeout ${user.username} ${timeoutSeconds}`, matches);
+				banUser(user, undefined, timeoutSeconds);
 			}
 			if (cBAN in env[cFORBIDDEN_PHRASES][trigger]) {
-				sendChat(target, user, `/ban ${user.username}`, matches);
+				banUser(user);
 			}
 		}
 	}
